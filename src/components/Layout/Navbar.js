@@ -1,8 +1,13 @@
+import auth from "@/firebase/firebase.auth";
 import { Layout, Menu, Button } from "antd";
+import { signOut, useSession } from "next-auth/react";
 const { Header } = Layout;
 import Link from "next/link";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Navbar = () => {
+  const { data: session } = useSession();
+  const [user, loading, error] = useAuthState(auth);
   return (
     <Header
       style={{
@@ -38,14 +43,20 @@ const Navbar = () => {
         >
           <items>Profile</items>
         </Link>
-        <Link style={{ textDecoration: "none", color: "white" }} href="/login">
-          <items>Login</items>
-        </Link>
-        <items>
-          <Button type="primary" danger>
-            Logout
-          </Button>
-        </items>
+        {session?.user || user?.email ? (
+          <items>
+            <Button onClick={() => signOut()} type="primary" danger>
+              Logout
+            </Button>
+          </items>
+        ) : (
+          <Link
+            style={{ textDecoration: "none", color: "white" }}
+            href="/login"
+          >
+            <items>Login</items>
+          </Link>
+        )}
       </Menu>
     </Header>
   );
